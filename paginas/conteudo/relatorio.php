@@ -1,88 +1,158 @@
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <setion class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-
-          
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+      </div>
+    </div><!-- /.container-fluid -->
+  </section>
+  <!-- Main content -->
+  <section class="content">
+    <div class="container-fluid">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Lista de contatos</h3>
         </div>
-      </div><!-- /.container-fluid -->
-    </setion>
-    <section class="content">
-      <div class="container-fluid">
-        
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Lista de contatos</h3>
-              </div>
-              <!-- /.card-header -->
-              <div class="card-body">
-                <table id="example1" class="table table-bordered table-hover">
-                  <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Foto</th>
-                    <th>Nome</th>
-                    <th>Telefone</th>
-                    <th>E-mail</th>
-                    <th>Ações</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  
-                                      
+        <!-- /.card-header -->
+        <div class="card-body">
+          <table id="example" class="display nowrap" style="width:100%">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Foto</th>
+                <th>Nome</th>
+                <th>Telefone</th>
+                <th>E-mail</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+
+            <?php
+              // PASSO 1: Seleciona todos os contatos em ordem decrescente
+              $select = "SELECT * FROM tb_contatos ORDER BY id_contatos DESC";
+
+              try {
+
+                $result = $conect->prepare($select);
+                $cont = 1;
+                $result->execute();
+
+                // PASSO 2: Verifica se o retorno contém registros
+                $contar = $result->rowCount();
+
+                if ($contar > 0) {
+
+                  // PASSO 3: Percorre cada objeto de contato retornado
+                  while ($show = $result->FETCH(PDO::FETCH_OBJ)) {
+
+            ?>
+
                     <tr>
-                      <td>1</td>
+
+                      <!-- Número do contato -->
                       <td>
-                      <img src="images/">
-                     </td>
-                      <td>Leandro Costa</td>
-                      <td>85991446498</td>
-                      <td>francisco.silva92@prof.ce.gov.br</td>
-                      
+                        <?php echo $cont++; ?>
+                      </td>
+                      <!-- Foto -->
                       <td>
-                      <div class="btn-group">
-                        <a href="home.php?acao=editar&id=<?php echo $show->id_contatos;?>" class="btn btn-success" title="Editar Contato"><i class="fas fa-user-edit"></i></button>
-                        <a href="conteudo/del-contato.php?idDel=<?php echo $show->id_contatos;?>" onclick="return confirm('Deseja remover o contato')" class="btn btn-danger" title="Remover Contato"><i class="fas fa-user-times"></i></a>
-                      </div>
+                        <?php
+                        // PASSO 4: Checa se a foto cadastrada é o avatar padrão
+                        if ($show->foto_contatos == 'avatar-padrao.png') {
+                          // Exibe a imagem salva na pasta de avatares padrões
+                          echo '<img 
+                                  src="../img/avatar_p/' . htmlspecialchars($show->foto_contatos) . '" 
+                                  alt="' . htmlspecialchars($show->foto_contatos) . '" 
+                                  title="' . htmlspecialchars($show->foto_contatos) . '" 
+                                  style="width: 50px; height: 50px; object-fit: cover; border-radius: 100%;">
+                                ';
+                        } else {
+                          // Exibe a imagem enviada pelo usuário na pasta de contatos
+                          echo '<img 
+                                  src="../img/cont/' . htmlspecialchars($show->foto_contatos) . '" 
+                                  alt="' . htmlspecialchars($show->foto_contatos) . '" 
+                                  title="' . htmlspecialchars($show->foto_contatos) . '" 
+                                  style="width: 50px; height: 50px; object-fit: cover; border-radius: 100%;">
+                                ';
+                        }
+                        ?>
+                      </td>
+                      <td><?php echo htmlspecialchars($show->nome_contatos); ?></td>
+                      <td><?php echo htmlspecialchars($show->fone_contatos); ?></td>
+                      <td><?php echo htmlspecialchars($show->email_contatos); ?></td>
+
+                      <td>
+
+                        <div class="btn-group">
+                          <!-- Botões de Ação para cada contato -->
+                          <!-- Botão Editar Contato -->
+                          <a 
+                            href="home.php?acao=editar&id=<?php echo $show->id_contatos; ?>" 
+                            class="btn btn-success" 
+                            title="Editar Contato">
+                            <i class="fas fa-user-edit"></i>
+                          </a>
+                          <!-- Botão Remover Contato -->
+                          <a 
+                            href="conteudo/del-rel-contato.php?idDelete=<?php echo $show->id_contatos; ?>" 
+                            onclick="return confirm('Deseja remover o contato?')" 
+                            class="btn btn-danger" 
+                            title="Remover Contato">
+                            <i class="fas fa-user-times"></i>
+                          </a>
+                        </div>
                       </td>
                     </tr>
-                   
-                  </tbody>
-                  <tfoot>
+            <?php
+                  }
+                } else {
+                  // Caso não existam contatos cadastrados
+            ?>
                   <tr>
-                    <th>#</th>
-                    <th>Foto</th>
-                    <th>Nome</th>
-                    <th>Telefone</th>
-                    <th>E-mail</th>
-                    <th>Ações</th>
+                    <td colspan="6" class="text-center">
+                      Nenhum contato cadastrado.
+                    </td>
                   </tr>
-                  </tfoot>
-                </table>
-                <div class="col-lg-12 d-flex justify-content-center">
-                  <a href="conteudo/relatoriopdf.php?id=<?php echo $id_user;?>" class="btn btn-lg btn-primary">Gerar relatório completo</a>
-                </div>
-                </div>
-              <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-          
-          
+            <?php
+                }
+              } catch (PDOException $e) {
+                // Exibe mensagem caso ocorra algum erro na consulta
+            ?>
+                <tr>
+                  <td colspan="6" class="text-center text-danger">
+                    <strong>ERRO DE PDO = </strong>
+                    <?php echo htmlspecialchars($e->getMessage()); ?>
+                  </td>
+                </tr>
+            <?php
+              }
+            ?>
+            </tbody>
+            <tfoot>
+              <tr>
+                <th>#</th>
+                <th>Foto</th>
+                <th>Nome</th>
+                <th>Telefone</th>
+                <th>E-mail</th>
+                <th>Ações</th>
+              </tr>
+            </tfoot>
+          </table>
         </div>
-      </div><!-- /.container-fluid -->
-    </section>
-
-    <!-- Main content -->
-    <section class="content">
-      <div class="container-fluid">
-      
+        <!-- /.card-body -->
       </div>
-        <!-- /.row -->
-      </div><!-- /.container-fluid -->
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
-  
+      <!-- /.card -->
+    </div>
+  </section>
+  <!-- /.content -->
+  <!-- Main content -->
+  <section class="content">
+    <div class="container-fluid">
+    </div>
+    <!-- /.row -->
+  </section>
+  <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
